@@ -5,6 +5,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { registerUser } from '@/utils/api';
+import { useMutation } from '@tanstack/react-query';
 
 export default function Signup() {
     const [name, setName] = useState('');
@@ -35,6 +37,18 @@ export default function Signup() {
         };
     }, []);
 
+    const mutation = useMutation({
+        mutationFn: registerUser,
+        onSuccess: (data: any) => {
+            console.log('User registered successfully:', data);
+            alert('Registration successful!');
+        },
+        onError: (error: any) => {
+            console.error('Registration failed:', error);
+            setFormError(error.response?.data?.message || 'An error occurred. Please try again.');
+        }
+    });
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
@@ -50,13 +64,13 @@ export default function Signup() {
         }
 
         setFormError('');
-        setIsLoading(true);
+        mutation.mutate({ name, email, password });
 
         // Simulate API call
         try {
             await new Promise(resolve => setTimeout(resolve, 1500));
             // Handle form submission logic here
-            console.log('Form submitted:', { name, email, password, userType });
+            console.log('Form submitted:', { name, email, password });
             setIsLoading(false);
         } catch (error) {
             setFormError('An error occurred. Please try again.');

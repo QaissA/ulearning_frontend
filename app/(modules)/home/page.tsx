@@ -1,10 +1,9 @@
-import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
-import Navbar from "../components/navbar";
-import HeroSection from "../components/heroSection";
-import ValueSection from "../components/value-section";
-import SocialProofSection from "../components/trust-signals-section";
-import EmailCaptureForm from "../components/call-to-action-section";
-import Footer from "../components/footer";
+import Navbar from "../../components/navbar";
+import HeroSection from "../../components/heroSection";
+import ValueSection from "../../components/value-section";
+import SocialProofSection from "../../components/trust-signals-section";
+import EmailCaptureForm from "../../components/call-to-action-section";
+import Footer from "../../components/footer";
 
 export default function LandingPage() {
     return (
