@@ -57,10 +57,10 @@ const Navbar = () => {
 
                     <div className="flex items-center">
                         <div className="hidden md:flex md:space-x-3">
-                            <Link href="/login" className={`${scrolled ? 'text-blue-600 border-blue-600 hover:bg-blue-50' : 'text-white border-white hover:bg-white hover:bg-opacity-10'} border px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200`}>
+                            <Link href="/auth/signin" className={`${scrolled ? 'text-blue-600 border-blue-600 hover:bg-blue-50' : 'text-white border-white hover:bg-white hover:bg-opacity-10'} border px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200`}>
                                 Log In
                             </Link>
-                            <Link href="/signup" className="text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 px-5 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200">
+                            <Link href="/auth/signup" className="text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 px-5 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200">
                                 Get Started
                             </Link>
                         </div>

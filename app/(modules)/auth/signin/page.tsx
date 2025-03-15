@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { loginUser } from '@/utils/api';
+import { useMutation } from '@tanstack/react-query';
+import { useAuthStore } from '@/store/useAuthStore';
+import { toast } from "sonner";
 
 const SignInPage = () => {
     const [email, setEmail] = useState('');
@@ -12,6 +16,7 @@ const SignInPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [formError, setFormError] = useState('');
     const router = useRouter();
+    const login = useAuthStore((state) => state.login);
 
     // Mouse position for interactive background effect
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -26,6 +31,63 @@ const SignInPage = () => {
             window.removeEventListener('mousemove', handleMouseMove);
         };
     }, []);
+
+    const mutation = useMutation({
+        mutationFn: loginUser,
+        onSuccess: async (data: any) => {
+            console.log('Backend response:', data);
+
+            // Transform the user data to match the expected format
+            const transformedUser = {
+                id: data.user.id.toString(),
+                name: data.user.name,
+                email: data.user.email,
+                role: (data.user.roleId === 1 ? 'admin' :
+                    data.user.roleId === 2 ? 'teacher' : 'student') as 'admin' | 'teacher' | 'student'
+            };
+
+            console.log('Transformed user data:', transformedUser);
+
+            // Store the user data and token
+            login(transformedUser, data.token);
+            console.log('Login function called');
+
+            // Show success message
+            toast.success('Login successful!', {
+                description: 'Welcome back!'
+            });
+
+            setIsLoading(false);
+
+            // Wait a bit longer to ensure state is updated
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Check if the auth state is properly set
+            const authState = useAuthStore.getState();
+            console.log('Auth state after login:', authState);
+            console.log('Cookie value:', document.cookie);
+
+            if (authState.isAuthenticated && authState.token) {
+                console.log('Authentication successful, redirecting to dashboard...');
+                // Use router.push instead of window.location for better navigation
+                router.push('/dashboard');
+            } else {
+                console.error('Authentication state not set properly');
+                console.error('Auth state:', authState);
+                toast.error('Authentication failed', {
+                    description: 'Please try again'
+                });
+            }
+        },
+        onError: (error: any) => {
+            console.error('Login failed:', error);
+            setFormError(error.response?.data?.message || 'Invalid email or password');
+            toast.error('Login failed', {
+                description: error.response?.data?.message || 'Invalid email or password'
+            });
+            setIsLoading(false);
+        }
+    });
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -43,12 +105,7 @@ const SignInPage = () => {
 
         setFormError('');
         setIsLoading(true);
-
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            router.push('/dashboard');
-        }, 1500);
+        mutation.mutate({ email, password });
     };
 
     const userTypes = [
@@ -275,7 +332,7 @@ const SignInPage = () => {
                     <div className="mt-6 text-center">
                         <p className="text-sm text-blue-200">
                             Don't have an account?{" "}
-                            <Link href="/signup" className="font-medium text-blue-300 hover:text-blue-100 transition-colors">
+                            <Link href="/auth/signup" className="font-medium text-blue-300 hover:text-blue-100 transition-colors">
                                 Sign Up
                             </Link>
                         </p>
