@@ -1,9 +1,10 @@
-'use client';
+'use client'
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import Sidebar from '../../components/sidebar';
+
 
 export default function DashboardLayout({
     children,
@@ -34,6 +35,5 @@ export default function DashboardLayout({
                 </div>
             </main>
         </div>
-        // </div>
-    );
+    )
 }

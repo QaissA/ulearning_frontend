@@ -34,50 +34,23 @@ const SignInPage = () => {
 
     const mutation = useMutation({
         mutationFn: loginUser,
-        onSuccess: async (data: any) => {
-            console.log('Backend response:', data);
-
-            // Transform the user data to match the expected format
-            const transformedUser = {
-                id: data.user.id.toString(),
-                name: data.user.name,
-                email: data.user.email,
-                role: (data.user.roleId === 1 ? 'admin' :
-                    data.user.roleId === 2 ? 'teacher' : 'student') as 'admin' | 'teacher' | 'student'
+        onSuccess: (data) => {
+            console.log('Login successful:', data);
+            // Transform the user data to ensure correct types
+            const user = {
+                ...data.user,
+                id: data.user.id.toString()
             };
-
-            console.log('Transformed user data:', transformedUser);
-
-            // Store the user data and token
-            login(transformedUser, data.token);
-            console.log('Login function called');
-
-            // Show success message
+            // Store user data and token
+            login(user, data.token);
             toast.success('Login successful!', {
-                description: 'Welcome back!'
+                description: `Welcome back, ${user.name}!`
             });
-
             setIsLoading(false);
-
-            // Wait a bit longer to ensure state is updated
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Check if the auth state is properly set
-            const authState = useAuthStore.getState();
-            console.log('Auth state after login:', authState);
-            console.log('Cookie value:', document.cookie);
-
-            if (authState.isAuthenticated && authState.token) {
-                console.log('Authentication successful, redirecting to dashboard...');
-                // Use router.push instead of window.location for better navigation
+            // Redirect to dashboard after successful login
+            setTimeout(() => {
                 router.push('/dashboard');
-            } else {
-                console.error('Authentication state not set properly');
-                console.error('Auth state:', authState);
-                toast.error('Authentication failed', {
-                    description: 'Please try again'
-                });
-            }
+            }, 500);
         },
         onError: (error: any) => {
             console.error('Login failed:', error);
@@ -89,20 +62,12 @@ const SignInPage = () => {
         }
     });
 
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Basic validation
         if (!email || !password) {
-            setFormError('Please fill in all fields');
+            setFormError('All fields are required');
             return;
         }
-
-        if (password.length < 6) {
-            setFormError('Password must be at least 6 characters');
-            return;
-        }
-
         setFormError('');
         setIsLoading(true);
         mutation.mutate({ email, password });
@@ -189,7 +154,7 @@ const SignInPage = () => {
                     </div>
 
                     {/* User type selector */}
-                    <div className="mb-6">
+                    {/* <div className="mb-6">
                         <div className="bg-white bg-opacity-5 rounded-lg p-1 flex items-center justify-between">
                             {userTypes.map((type) => (
                                 <button
@@ -209,7 +174,7 @@ const SignInPage = () => {
                                 </button>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Sign in form */}
                     <form onSubmit={handleSubmit} className="space-y-5">

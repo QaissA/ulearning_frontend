@@ -7,11 +7,9 @@ export function middleware(request: NextRequest) {
   console.log("Middleware - Current path:", path);
 
   // Define public paths that don't require authentication
+  const publicPaths = ["/auth/signin", "/auth/signup", "/home", "/"];
   const isPublicPath =
-    path === "/auth/signin" ||
-    path === "/auth/signup" ||
-    path === "/home" ||
-    path === "/" ||
+    publicPaths.some((publicPath) => path === publicPath) ||
     path.startsWith("/api/");
 
   console.log("Middleware - Is public path:", isPublicPath);
@@ -21,7 +19,6 @@ export function middleware(request: NextRequest) {
   console.log("Middleware - Auth cookie:", authCookie?.value);
 
   let isAuthenticated = false;
-
   try {
     if (authCookie?.value) {
       const parsedCookie = JSON.parse(authCookie.value);
@@ -37,25 +34,32 @@ export function middleware(request: NextRequest) {
     isAuthenticated = false;
   }
 
-  // Handle dashboard access
-  if (path.startsWith("/dashboard")) {
-    console.log("Middleware - Attempting to access dashboard");
-    if (!isAuthenticated) {
-      console.log("Middleware - Not authenticated, redirecting to signin");
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
+  // Handle authentication routes (prevent authenticated users from accessing login/signup)
+  if (path === "/auth/signin" || path === "/auth/signup") {
+    if (isAuthenticated) {
+      console.log(
+        "Middleware - Authenticated user trying to access auth pages"
+      );
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
-    console.log("Middleware - Authenticated, allowing dashboard access");
     return NextResponse.next();
   }
 
-  // Handle auth pages access (signin/signup)
-  if ((path === "/auth/signin" || path === "/auth/signup") && isAuthenticated) {
-    console.log(
-      "Middleware - Authenticated user trying to access auth pages, redirecting to dashboard"
-    );
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  // Handle root path
+  if (path === "/") {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
 
+  // For all other routes, just check if user is authenticated
+  if (!isPublicPath && !isAuthenticated) {
+    console.log("Middleware - Not authenticated, redirecting to signin");
+    return NextResponse.redirect(new URL("/auth/signin", request.url));
+  }
+
+  // Allow all other navigation for authenticated users
   return NextResponse.next();
 }
 

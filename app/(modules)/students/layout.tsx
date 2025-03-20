@@ -1,11 +1,10 @@
-'use client';
+'use client'
+import Sidebar from "@/app/components/sidebar";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
-import Sidebar from '../../components/sidebar';
-
-export default function DashboardLayout({
+export default function StudentLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
@@ -14,26 +13,26 @@ export default function DashboardLayout({
     const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
+        // Only check for authentication
         if (!isAuthenticated) {
-            router.push('/auth/signin');
+            router.replace('/auth/signin');
+            return;
         }
     }, [isAuthenticated, router]);
 
+    // Don't render until authenticated
     if (!isAuthenticated) {
-        return null; // or a loading spinner
+        return null;
     }
 
     return (
         <div className="min-h-screen bg-gray-100">
-            {/* Sidebar */}
             <Sidebar />
-
             <main className="sm:ml-64 p-4">
                 <div className="container mx-auto px-4 py-8">
                     {children}
                 </div>
             </main>
         </div>
-        // </div>
     );
 }

@@ -1,12 +1,20 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import Cookies from "js-cookie";
+
+interface Role {
+  id: number;
+  name: string;
+  description: string;
+}
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: "student" | "teacher" | "admin";
+  roleId: number;
+  role: Role;
+  adress?: string;
 }
 
 interface AuthState {
@@ -25,13 +33,17 @@ const cookieStorage = {
     console.log("Cookie - Getting item:", name);
     const value = Cookies.get(name);
     console.log("Cookie - Retrieved value:", value);
-    return value ? value : null;
+    try {
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      console.error("Error parsing cookie:", error);
+      return null;
+    }
   },
   setItem: (name: string, value: any) => {
     console.log("Cookie - Setting item:", name, value);
-    // Set cookie with secure options
-    Cookies.set(name, value, {
-      expires: 7, // 7 days
+    Cookies.set(name, JSON.stringify(value), {
+      expires: 7,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
@@ -44,20 +56,20 @@ const cookieStorage = {
   },
 };
 
-export const useAuthStore = create<AuthState>()(
-  persist(
+export const useAuthStore = create(
+  persist<AuthState>(
     (set) => ({
       user: null,
       token: null,
       isAuthenticated: false,
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
       login: (user, token) => set({ user, token, isAuthenticated: true }),
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
     }),
     {
       name: "auth-storage",
-      storage: createJSONStorage(() => cookieStorage),
+      storage: cookieStorage,
     }
   )
 );

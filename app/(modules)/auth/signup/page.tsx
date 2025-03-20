@@ -22,9 +22,10 @@ export default function Signup() {
 
     // User type options
     const userTypes = [
-        { id: 'student', label: 'Student' },
-        { id: 'teacher', label: 'Teacher' },
-        { id: 'admin', label: 'Admin' }
+        { id: 'admin', label: 'Admin', roleId: 1 },
+        { id: 'student', label: 'Student', roleId: 2 },
+        { id: 'teacher', label: 'Teacher', roleId: 3 },
+        { id: 'admin_staff', label: 'Admin Staf', roleId: 4 }
     ];
 
     // Track mouse position for the gradient effect
@@ -77,9 +78,23 @@ export default function Signup() {
             return;
         }
 
+        // Get the roleId based on selected userType
+        const selectedRole = userTypes.find(type => type.id === userType);
+        if (!selectedRole) {
+            setFormError('Please select a valid role');
+            return;
+        }
+
         setFormError('');
         setIsLoading(true);
-        mutation.mutate({ name, email, password });
+
+        // Send registration data with roleId
+        mutation.mutate({
+            name,
+            email,
+            password,
+            roleId: selectedRole.roleId
+        });
     };
 
     return (
