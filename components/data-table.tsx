@@ -60,19 +60,23 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   })
+
+  const filterableColumn = table.getAllColumns().find(col => col.getCanFilter());
  
   return (
     <div>
       {/* Filter */}
       <div className="flex items-center py-4">
+      {filterableColumn && (
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder={`Filter by ${filterableColumn.id}...`}
+          value={(filterableColumn.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            filterableColumn.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
+      )}
 
       {/* Visibility */}
       <DataTableViewOptions table={table} />
