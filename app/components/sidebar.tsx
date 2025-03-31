@@ -63,7 +63,7 @@ const Sidebar = () => {
                             <h3 className="mt-3 text-lg font-semibold text-white">{user.name}</h3>
                             <p className="text-sm text-blue-300">{user.email}</p>
                             <div className="mt-2 px-4 py-1 bg-blue-800 bg-opacity-50 text-blue-200 rounded-full text-xs font-medium shadow-md transition-all duration-300 hover:bg-opacity-70">
-                                {user.role.name}
+                                {/* {user.role.name} */}
                             </div>
                         </div>
                     </div>
