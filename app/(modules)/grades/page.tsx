@@ -13,14 +13,11 @@ const NotesPage = () => {
     const mutation = useMutation({
         mutationFn: fetchNotes,
         onSuccess: (data) => {
-            console.log('Notes fetched successfully:', data);
-            toast.success('Notes fetched successfully');
             setIsLoading(false);
         },
         onError: (error: any) => {
             console.error('Failed to fetch notes:', error);
             setError(error.message || 'Error fetching notes');
-            toast.error('Failed to fetch notes');
             setIsLoading(false);
         }
     });
@@ -33,7 +30,7 @@ const NotesPage = () => {
     const data = mutation.data || [];
 
     if (isLoading) return <div>Loading notes...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (error) return <div className="text-red-500">Error: {error}</div>;
 
     return (
         <section className="py-24">

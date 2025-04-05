@@ -46,22 +46,14 @@ export const registerUser = async (data: RegisterUser) => {
 export const loginUser = async (data: LoginUser): Promise<LoginResponse> => {
   const response = await axios.post(`${API_BASE_URL}/login/signin`, data);
   return response.data;
-};
+}
 
 export async function fetchStudents(): Promise<Students[]> {
-  const res = await fetch('http://localhost:3000/api/users/role/STUDENT');
-  if (!res.ok) {
-      throw new Error('Failed to fetch students');
-  }
-  return res.json();
+  const res = await axios.get(`${API_BASE_URL}/users/role/STUDENT`);
+  return res.data;
 }
 
 export const fetchNotes = async () => {
-  const res = await fetch('http://localhost:3000/api/notes');
-
-  if (!res.ok) {
-      throw new Error('Failed to fetch notes');
-  }
-
-  return res.json();
+  const res = await axios.get(`${API_BASE_URL}/notes`);
+  return res.data;
 };
