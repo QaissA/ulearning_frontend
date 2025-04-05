@@ -15,12 +15,17 @@ import {
 import { DataTableColumnHeader } from "@/components/ui/DataTableColumnHeader"
 
 // This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 export type Grades = {
   id: string
   userId: string
   matiereId: string
   score: number
+  user: {
+    name: string
+  }
+  matiere: {
+    name: string
+  }
 }
 
 export const columns: ColumnDef<Grades>[] = [
@@ -47,15 +52,15 @@ export const columns: ColumnDef<Grades>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "userId",
+    accessorKey: "user.name", // Show the student's name
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="UserId" />
+      <DataTableColumnHeader column={column} title="Student Name" />
     ),
   },
   {
-    accessorKey: "matiereId",
+    accessorKey: "matiere.name", // Show the name of the subject
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="MatiereId" />
+      <DataTableColumnHeader column={column} title="Matiere Name" />
     ),
   },
   {
