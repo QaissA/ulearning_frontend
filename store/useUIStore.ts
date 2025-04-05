@@ -16,8 +16,8 @@ export const useUIStore = create<UIState>()(
       theme: "light",
       toggleSidebar: () =>
         set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-      setSidebarOpen: (open) => set({ sidebarOpen: open }),
-      setTheme: (theme) => set({ theme }),
+        setSidebarOpen: (open) => set({ sidebarOpen: open }),
+        setTheme: (theme) => set({ theme }),
     }),
     {
       name: "ui-storage", // unique name for localStorage key
