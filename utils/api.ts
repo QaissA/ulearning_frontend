@@ -1,3 +1,4 @@
+import { Students } from "@/app/(modules)/students/columns";
 import axios from "axios";
 
 interface RegisterUser {
@@ -35,7 +36,7 @@ interface LoginUser {
 }
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
 export const registerUser = async (data: RegisterUser) => {
   const response = await axios.post(`${API_BASE_URL}/login`, data);
@@ -45,4 +46,14 @@ export const registerUser = async (data: RegisterUser) => {
 export const loginUser = async (data: LoginUser): Promise<LoginResponse> => {
   const response = await axios.post(`${API_BASE_URL}/login/signin`, data);
   return response.data;
+}
+
+export async function fetchStudents(): Promise<Students[]> {
+  const res = await axios.get(`${API_BASE_URL}/users/role/STUDENT`);
+  return res.data;
+}
+
+export const fetchNotes = async () => {
+  const res = await axios.get(`${API_BASE_URL}/notes`);
+  return res.data;
 };

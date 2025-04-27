@@ -1,22 +1,23 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { toast } from "sonner";
 import { DataTable } from '@/components/data-table';
 import { columns } from './columns';
-import { fetchStudents } from '@/utils/api';
+import { fetchNotes } from '@/utils/api';
 
-const StudentsPage = () => {
+const NotesPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
     const mutation = useMutation({
-        mutationFn: fetchStudents,
-        onSuccess: () => {
+        mutationFn: fetchNotes,
+        onSuccess: (data) => {
             setIsLoading(false);
         },
         onError: (error: any) => {
-            console.error('Failed to fetch students:', error);
-            setError(error.message || 'Error fetching students');
+            console.error('Failed to fetch notes:', error);
+            setError(error.message || 'Error fetching notes');
             setIsLoading(false);
         }
     });
@@ -28,17 +29,17 @@ const StudentsPage = () => {
 
     const data = mutation.data || [];
 
-    if (isLoading) return <div>Loading students...</div>;
+    if (isLoading) return <div>Loading notes...</div>;
     if (error) return <div className="text-red-500">Error: {error}</div>;
 
     return (
         <section className="py-24">
             <div className="container">
-                <h1 className="mb-6 text-3xl font-bold">Students</h1>
+                <h1 className="mb-6 text-3xl font-bold">Notes</h1>
                 <DataTable columns={columns} data={data} />
             </div>
         </section>
     );
 };
 
-export default StudentsPage;
+export default NotesPage;
