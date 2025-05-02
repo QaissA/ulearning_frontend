@@ -3,6 +3,8 @@
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
+import { useAuthStore } from "@/store/useAuthStore"
+import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 
@@ -182,6 +184,22 @@ const DropdownMenuShortcut = ({
 }
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
 
+const DropdownMenuLogoutItem = () => {
+  const { logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth/signin');
+  };
+
+  return (
+    <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+      Logout
+    </DropdownMenuItem>
+  );
+};
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -198,4 +216,5 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
+  DropdownMenuLogoutItem,
 }

@@ -6,6 +6,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import Navbar from "@/components/Navbar";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,13 +30,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [queryClient] = useState(() => new QueryClient());
+  const pathname = usePathname();
+
+  // Mock user data - replace with actual user data from your auth system
+  const mockUser = {
+    name: "John Doe",
+    role: "Student",
+    imageUrl: "/default-avatar.svg",
+  };
+
+  const hideNavbar = pathname === "/auth/signin" || pathname === "/auth/signup";
+
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <QueryClientProvider client={queryClient}>
-          {children}
+          {!hideNavbar && <Navbar user={mockUser} />}
+          <main className="flex-1">{children}</main>
           <Toaster />
         </QueryClientProvider>
       </body>
