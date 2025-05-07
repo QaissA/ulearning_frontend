@@ -72,3 +72,7 @@ export const fetchClasses = async (): Promise<Class[]> => {
   const res = await axios.get(`${API_BASE_URL}/classes`);
   return res.data;
 };
+
+export const deleteUser = async (id: string): Promise<void> => {
+  await axios.delete(`${API_BASE_URL}/users/${id}`);
+};

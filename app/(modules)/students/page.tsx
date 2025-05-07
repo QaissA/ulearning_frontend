@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { DataTable } from '@/components/data-table';
-import { columns } from './columns';
+import { columns as columnsFunction } from './columns';
 import { fetchStudents, fetchClasses, Class } from '@/utils/api';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
@@ -17,10 +17,12 @@ const StudentsPage = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [alertDetails, setAlertDetails] = useState({ name: '', className: '' });
     const [selectedClass, setSelectedClass] = useState('');
+    const [studentsData, setStudentsData] = useState([]);
 
     const mutation = useMutation({
         mutationFn: fetchStudents,
-        onSuccess: () => {
+        onSuccess: (data) => {
+            setStudentsData(data);
             setIsLoading(false);
         },
         onError: (error: any) => {
@@ -62,16 +64,15 @@ const StudentsPage = () => {
 
         try {
             const response = await axios.post('http://localhost:3000/api/login', studentData);
-            console.log('Student added successfully:', response.data);
             setAlertDetails({ name: studentData.name as string, className: selectedClass });
             setShowAlert(true);
         } catch (error) {
-            console.error('Error adding student:', error);
             alert('Failed to add student. Please try again.');
         }
     };
 
-    const data = mutation.data || [];
+    const data = studentsData;
+    const columns = columnsFunction(studentsData, setStudentsData);
 
     if (isLoading) return <div>Loading students...</div>;
     if (error) return <div className="text-red-500">Error: {error}</div>;
