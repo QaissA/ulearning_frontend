@@ -14,7 +14,7 @@ const NotesPage = () => {
         mutationFn: fetchNotes,
         onSuccess: (data) => {
             setIsLoading(false);
-        },
+        },  
         onError: (error: any) => {
             console.error('Failed to fetch notes:', error);
             setError(error.message || 'Error fetching notes');

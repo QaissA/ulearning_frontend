@@ -8,13 +8,8 @@ import Link from 'next/link';
 
 const Sidebar = () => {
     const router = useRouter();
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
     const { sidebarOpen, toggleSidebar } = useUIStore();
-
-    const handleLogout = () => {
-        logout();
-        router.push('/auth/signin');
-    };
 
     return (
         <aside
@@ -163,9 +158,8 @@ const Sidebar = () => {
                 </nav>
 
                 {/* Animated logout button */}
-                <div className="border-t border-blue-800 p-4">
+                {/* <div className="border-t border-blue-800 p-4">
                     <button
-                        onClick={handleLogout}
                         className="group flex w-full items-center justify-center px-4 py-3 rounded-xl bg-blue-800 bg-opacity-50 hover:bg-opacity-70 transition-all duration-300 relative overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
@@ -176,7 +170,7 @@ const Sidebar = () => {
                             Logout
                         </span>
                     </button>
-                </div>
+                </div> */}
             </div>
         </aside>
     );

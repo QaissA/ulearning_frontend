@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "@/components/ui/DataTableColumnHeader"
+import { ComboboxDemo } from "@/components/ui/combobox-demo"
 
 // This type is used to define the shape of our data.
 export type Grades = {
@@ -60,7 +61,20 @@ export const columns: ColumnDef<Grades>[] = [
   {
     accessorKey: "matiere.name", // Show the name of the subject
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Matiere Name" />
+      <div>
+        <ComboboxDemo
+          onSelect={(value) => {
+            column.setFilterValue(value === "all" ? "" : value);
+          }}
+          options={[
+            { value: "all", label: "All" },
+            { value: "Math", label: "Math" },
+            { value: "Science", label: "Science" },
+            { value: "History", label: "History" },
+            // Add more matiere options here
+          ]}
+        />
+      </div>
     ),
   },
   {
@@ -92,7 +106,7 @@ export const columns: ColumnDef<Grades>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
