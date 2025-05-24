@@ -1,4 +1,4 @@
-"use client"
+ "use client"
 
 import React from "react"
 import { ColumnDef } from "@tanstack/react-table"
@@ -16,7 +16,6 @@ import {
 import { DataTableColumnHeader } from "@/components/ui/DataTableColumnHeader"
 import { ComboboxDemo } from "@/components/ui/combobox-demo"
 
-// This type is used to define the shape of our data.
 export type Grades = {
   id: string
   userId: string
@@ -30,7 +29,7 @@ export type Grades = {
   }
 }
 
-export const columns: ColumnDef<Grades>[] = [
+export const columnsAdd: ColumnDef<Grades>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -54,13 +53,13 @@ export const columns: ColumnDef<Grades>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "user.name", // Show the student's name
+    accessorKey: "user.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Name" />
     ),
   },
   {
-    accessorKey: "matiere.name", // Show the name of the subject
+    accessorKey: "matiere.name",
     header: ({ column }) => (
       <div>
         <ComboboxDemo
@@ -72,7 +71,6 @@ export const columns: ColumnDef<Grades>[] = [
             { value: "Math", label: "Math" },
             { value: "Science", label: "Science" },
             { value: "History", label: "History" },
-            // Add more matiere options here
           ]}
         />
       </div>
@@ -83,15 +81,23 @@ export const columns: ColumnDef<Grades>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Score" />
     ),
-    // Show score as plain text (not input)
-    cell: ({ row }) => row.original.score,
+    cell: ({ row }) => {
+      const [value, setValue] = React.useState(row.original.score);
+      return (
+        <input
+          type="number"
+          className="border rounded px-2 py-1 w-20"
+          value={value}
+          onChange={e => setValue(Number(e.target.value))}
+        />
+      );
+    },
   },
   {
     accessorKey: "Actions",
     id: "actions",
     cell: ({ row }) => {
       const students = row.original
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

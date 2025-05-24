@@ -38,23 +38,60 @@ interface LoginUser {
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
+// Create an Axios instance with default headers
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Add a request interceptor to include the token in headers
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("authToken"); // Replace with your token retrieval logic
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const registerUser = async (data: RegisterUser) => {
-  const response = await axios.post(`${API_BASE_URL}/login`, data);
+  const response = await apiClient.post(`/login`, data);
   return response.data;
 };
 
 export const loginUser = async (data: LoginUser): Promise<LoginResponse> => {
-  const response = await axios.post(`${API_BASE_URL}/login/signin`, data);
+  const response = await apiClient.post(`/login/signin`, data);
+  const { token } = response.data;
+
+  // Store the token in localStorage
+  if (token) {
+    localStorage.setItem("authToken", token);
+  }
+
   return response.data;
+};
+
+interface FetchStudentsParams {
+  page?: number;
+  limit?: number;
 }
 
-export async function fetchStudents(): Promise<Students[]> {
-  const res = await axios.get(`${API_BASE_URL}/users/role/STUDENT`);
+export async function fetchStudents(params: FetchStudentsParams = {}): Promise<Students[]> {
+  const { page = 1, limit = 10 } = params;
+  const res = await apiClient.get(`/users`, {
+    params: { page, limit }
+  });
   return res.data;
 }
 
-export const fetchNotes = async () => {
-  const res = await axios.get(`${API_BASE_URL}/notes`);
+export interface FetchNotesParams {
+  page?: number;
+  limit?: number;
+}
+
+export const fetchNotes = async (params: FetchNotesParams = {}) => {
+  const { page = 1, limit = 10 } = params;
+  const res = await apiClient.get(`/notes`, {
+    params: { page, limit }
+  });
   return res.data;
 };
 
@@ -69,10 +106,10 @@ export interface Class {
 }
 
 export const fetchClasses = async (): Promise<Class[]> => {
-  const res = await axios.get(`${API_BASE_URL}/classes`);
+  const res = await apiClient.get(`/classes`);
   return res.data;
 };
 
 export const deleteUser = async (id: string): Promise<void> => {
-  await axios.delete(`${API_BASE_URL}/users/${id}`);
+  await apiClient.delete(`/users/${id}`);
 };
