@@ -125,6 +125,17 @@ const Sidebar = () => {
                                 </span>
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/attendance" className="group flex items-center px-4 py-2.5 text-white rounded-xl hover:bg-blue-800 hover:bg-opacity-50 transition-all duration-300 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-lime-500 opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
+                                <span className="relative z-10 flex items-center">
+                                    <svg className="h-5 w-5 mr-3 transition-transform duration-300 group-hover:rotate-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17l4 4 4-4m-4-5v9" />
+                                    </svg>
+                                    Attendance
+                                </span>
+                            </Link>
+                        </li>
                     </ul>
 
                     <div className="mt-8 mb-2 px-4 text-xs font-semibold uppercase tracking-wider text-blue-400">
