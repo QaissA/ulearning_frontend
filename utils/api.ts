@@ -139,3 +139,16 @@ export const fetchAttendanceByDate = async ({ date, page = 1, limit = 10 }: Fetc
   });
   return res.data;
 };
+
+export const updateUser = async (id: number, data: Partial<User>) => {
+  const response = await apiClient.put(`/users/profile/${id}`, data);
+  return response.data;
+};
+
+export const changePassword = async (id: number, currentPassword: string, newPassword: string) => {
+  const response = await apiClient.put(`/users/password/${id}`, {
+    currentPassword,
+    newPassword,
+  });
+  return response.data;
+};
