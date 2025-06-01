@@ -4,9 +4,67 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/useAuthStore';
+import { changePassword, updateUser } from '@/utils/api';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
+
+  const [name, setName] = React.useState(user?.name || '');
+  const [email, setEmail] = React.useState(user?.email || '');
+  const [address, setAddress] = React.useState(user?.adress || '');
+
+  const [currentPassword, setCurrentPassword] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+
+  const handleSave = async () => {
+    if (!user) return;
+    try {
+      const updatedUser = await updateUser(Number(user.id), {
+        name,
+        email,
+        adress: address,
+      });
+      
+      // update store
+      setUser(updatedUser);
+      toast.success('Information updated successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update information');
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!user) return;
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error('All password fields are required');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    try {
+      await changePassword(Number(user.id), currentPassword, newPassword);
+      toast.success('Password updated successfully');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      const details = err?.response?.data?.details?.toLowerCase();
+      if (details && details.includes('current password is incorrect')) {
+        toast.error('Current password is incorrect');
+      } else {
+        toast.error(err?.response?.data?.message || err?.response?.data?.details || 'Failed to update password');
+      }
+    }
+  };
 
   return (
     <div className="p-6 bg-background text-foreground min-h-screen">
@@ -26,7 +84,7 @@ export default function SettingsPage() {
             <h2 className="text-lg font-semibold mb-4">Public profile</h2>
             <div className="flex items-center mb-6">
               <div className="w-24 h-24 rounded-full bg-muted-foreground flex items-center justify-center overflow-hidden">
-                <img src={user?.imageUrl || '/default-avatar.svg'} alt="Profile" className="w-full h-full object-cover" />
+                <img src={'/default-avatar.svg'} alt="Profile" className="w-full h-full object-cover" />
               </div>
               <div className="ml-4 space-y-2">
                 <Button variant="default">Change picture</Button>
@@ -36,27 +94,30 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">Name</label>
-                <Input id="name" placeholder="Name" defaultValue={user?.name || ''} />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1">Email</label>
-                <Input id="email" placeholder="Email" defaultValue={user?.email || ''} />
+                <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-muted-foreground mb-1">Role</label>
-                <Input id="role" placeholder="Role" defaultValue={user?.role || ''} />
+                <Input
+                  id="role"
+                  placeholder="Role ID"
+                  value={user?.roleId.toString() || ''}
+                  readOnly
+                />
               </div>
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-muted-foreground mb-1">Address</label>
-                <Input id="address" placeholder="Address" defaultValue={user?.adress || ''} />
-              </div>
-              <div>
-                <label htmlFor="class" className="block text-sm font-medium text-muted-foreground mb-1">Class</label>
-                <Input id="class" placeholder="Class" defaultValue={user?.class || ''} />
+                <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
             </div>
             <div className="mt-4">
-              <Button variant="default">Save Information</Button>
+              <Button variant="default" onClick={handleSave}>
+                Save Information
+              </Button>
             </div>
           </section>
 
@@ -65,19 +126,19 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="current-password" className="block text-sm font-medium text-muted-foreground mb-1">Current Password</label>
-                <Input id="current-password" type="password" placeholder="Current Password" />
+                <Input id="current-password" type="password" placeholder="Current Password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
               </div>
               <div>
                 <label htmlFor="new-password" className="block text-sm font-medium text-muted-foreground mb-1">New Password</label>
-                <Input id="new-password" type="password" placeholder="New Password" />
+                <Input id="new-password" type="password" placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
               </div>
               <div className="md:col-span-2">
                 <label htmlFor="confirm-password" className="block text-sm font-medium text-muted-foreground mb-1">Confirm New Password</label>
-                <Input id="confirm-password" type="password" placeholder="Confirm New Password" />
+                <Input id="confirm-password" type="password" placeholder="Confirm New Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
               </div>
             </div>
             <div className="mt-4">
-              <Button variant="default">Update Password</Button>
+              <Button variant="default" onClick={handleChangePassword}>Update Password</Button>
             </div>
           </section>
         </main>
