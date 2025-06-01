@@ -74,10 +74,12 @@ interface FetchStudentsParams {
   limit?: number;
 }
 
-export async function fetchStudents(params: FetchStudentsParams = {}): Promise<Students[]> {
+export async function fetchStudents(
+  params: FetchStudentsParams = {}
+): Promise<any> {
   const { page = 1, limit = 10 } = params;
   const res = await apiClient.get(`/users`, {
-    params: { page, limit }
+    params: { page, limit },
   });
   return res.data;
 }
@@ -90,7 +92,7 @@ export interface FetchNotesParams {
 export const fetchNotes = async (params: FetchNotesParams = {}) => {
   const { page = 1, limit = 10 } = params;
   const res = await apiClient.get(`/notes`, {
-    params: { page, limit }
+    params: { page, limit },
   });
   return res.data;
 };
@@ -120,7 +122,11 @@ export interface FetchAttendanceParams {
   limit?: number;
 }
 
-export const fetchAttendance = async ({ userId, page = 1, limit = 10 }: FetchAttendanceParams) => {
+export const fetchAttendance = async ({
+  userId,
+  page = 1,
+  limit = 10,
+}: FetchAttendanceParams) => {
   const res = await apiClient.get(`/attendance/user/${userId}`, {
     params: { page, limit },
   });
@@ -133,7 +139,11 @@ export interface FetchAttendanceByDateParams {
   limit?: number;
 }
 
-export const fetchAttendanceByDate = async ({ date, page = 1, limit = 10 }: FetchAttendanceByDateParams) => {
+export const fetchAttendanceByDate = async ({
+  date,
+  page = 1,
+  limit = 10,
+}: FetchAttendanceByDateParams) => {
   const res = await apiClient.get(`/attendance/date`, {
     params: { date, page, limit },
   });
@@ -145,7 +155,11 @@ export const updateUser = async (id: number, data: Partial<User>) => {
   return response.data;
 };
 
-export const changePassword = async (id: number, currentPassword: string, newPassword: string) => {
+export const changePassword = async (
+  id: number,
+  currentPassword: string,
+  newPassword: string
+) => {
   const response = await apiClient.put(`/users/password/${id}`, {
     currentPassword,
     newPassword,
