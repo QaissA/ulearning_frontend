@@ -35,7 +35,6 @@ const SignInPage = () => {
     const mutation = useMutation({
         mutationFn: loginUser,
         onSuccess: (data) => {
-            console.log('Login successful:', data);
             // Transform the user data to ensure correct types
             const user = {
                 ...data.user,
