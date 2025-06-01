@@ -113,3 +113,29 @@ export const fetchClasses = async (): Promise<Class[]> => {
 export const deleteUser = async (id: string): Promise<void> => {
   await apiClient.delete(`/users/${id}`);
 };
+
+export interface FetchAttendanceParams {
+  userId: number;
+  page?: number;
+  limit?: number;
+}
+
+export const fetchAttendance = async ({ userId, page = 1, limit = 10 }: FetchAttendanceParams) => {
+  const res = await apiClient.get(`/attendance/user/${userId}`, {
+    params: { page, limit },
+  });
+  return res.data;
+};
+
+export interface FetchAttendanceByDateParams {
+  date: string;
+  page?: number;
+  limit?: number;
+}
+
+export const fetchAttendanceByDate = async ({ date, page = 1, limit = 10 }: FetchAttendanceByDateParams) => {
+  const res = await apiClient.get(`/attendance/date`, {
+    params: { date, page, limit },
+  });
+  return res.data;
+};
