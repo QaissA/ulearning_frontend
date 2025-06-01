@@ -8,7 +8,7 @@ import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescri
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from '@/components/ui/alert-dialog';
 
 const StudentsPage = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -18,32 +18,45 @@ const StudentsPage = () => {
     const [alertDetails, setAlertDetails] = useState({ name: '', className: '' });
     const [selectedClass, setSelectedClass] = useState('');
     const [studentsData, setStudentsData] = useState([]);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
 
     const mutation = useMutation({
-        mutationFn: fetchStudents,
-        onSuccess: (data) => {
-            setStudentsData(data);
-            setIsLoading(false);
-        },
-        onError: (error: any) => {
-            console.error('Failed to fetch students:', error);
-            setError(error.message || 'Error fetching students');
-            setIsLoading(false);
-        }
+    mutationFn: ({ page, limit }: { page: number; limit: number }) => fetchStudents({ page, limit }),
+    onSuccess: (data) => {
+        console.log('Fetched students data:', data); // Debugging log
+        setStudentsData(data.users); // Extracting the users array
+        setTotalCount(data.totalCount);
+        setIsLoading(false);
+    },
+    onError: (error: any) => {
+        console.error('Failed to fetch students:', error); // Debugging log
+        setError(error.message || 'Error fetching students');
+        setIsLoading(false);
+    }
     });
 
+
     useEffect(() => {
+        console.log('Fetching students...'); // Debugging log
+        console.log('📡 Triggering fetchStudents with:', {
+            page: pageIndex + 1,
+            limit: pageSize
+        });
         setIsLoading(true);
-        mutation.mutate();
-    }, []);
+        mutation.mutate({ page: pageIndex + 1, limit: pageSize }); // Adjust pageIndex if your backend is 1-based
+    }, [pageIndex, pageSize]);
 
     useEffect(() => {
         const loadClasses = async () => {
             try {
+                console.log('Fetching classes...'); // Debugging log
                 const classData = await fetchClasses();
+                console.log('Fetched classes data:', classData); // Debugging log
                 setClasses(classData);
             } catch (error) {
-                console.error('Error fetching classes:', error);
+                console.error('Error fetching classes:', error); // Debugging log
             }
         };
 
@@ -71,12 +84,17 @@ const StudentsPage = () => {
         }
     };
 
-    const data = studentsData;
+    const data = studentsData || []; // Pass only the users array to the DataTable
     const columns = columnsFunction(studentsData, setStudentsData);
 
     if (isLoading) return <div>Loading students...</div>;
     if (error) return <div className="text-red-500">Error: {error}</div>;
-
+    const pageCount = Math.ceil(totalCount / pageSize);
+    console.log("📥 Pagination props passed to DataTable:", {
+        pageIndex,
+        pageSize,
+        pageCount,
+    });
     return (
         <>
             <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
@@ -185,10 +203,21 @@ const StudentsPage = () => {
                             </SheetContent>
                         </Sheet>
                     </div>
-                    <DataTable columns={columns} data={data} />
+                    <DataTable
+                        columns={columns}
+                        data={data}
+                        pageCount={Math.ceil(totalCount / pageSize)}
+                        pagination={{
+                            pageIndex,
+                            pageSize,
+                            setPageIndex,
+                            setPageSize,
+                        }}
+                        
+                    />
                 </div>
             </section>
-        </>
+        </> 
     );
 };
 

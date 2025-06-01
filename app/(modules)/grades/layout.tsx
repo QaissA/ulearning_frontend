@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import Sidebar from '../../components/sidebar';
@@ -13,13 +13,21 @@ export default function DashboardLayout({
 }>) {
     const router = useRouter();
     const { isAuthenticated } = useAuthStore();
+    const [hasHydrated, setHasHydrated] = useState(false);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        setHasHydrated(true);
+    }, []);
+
+    useEffect(() => {
+        if (hasHydrated && !isAuthenticated) {
             router.push('/auth/signin');
         }
-    }, [isAuthenticated, router]);
+    }, [hasHydrated, isAuthenticated, router]);
 
+    if (!hasHydrated) {
+        return null; // or a loading spinner
+    }
     if (!isAuthenticated) {
         return null; // or a loading spinner
     }
