@@ -60,22 +60,10 @@ export const columns: ColumnDef<Grades>[] = [
     ),
   },
   {
-    accessorKey: "matiere.name", // Show the name of the subject
+    accessorKey: "matiere.name",
+    id: "matiere.name", // Ensure the column id matches the filter logic
     header: ({ column }) => (
-      <div>
-        <ComboboxDemo
-          onSelect={(value) => {
-            column.setFilterValue(value === "all" ? "" : value);
-          }}
-          options={[
-            { value: "all", label: "All" },
-            { value: "Math", label: "Math" },
-            { value: "Science", label: "Science" },
-            { value: "History", label: "History" },
-            // Add more matiere options here
-          ]}
-        />
-      </div>
+      <DataTableColumnHeader column={column} title="Matiere" />
     ),
   },
   {

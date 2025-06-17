@@ -73,6 +73,12 @@ export const columns = (
     ),
   },
   {
+    accessorKey: "className",
+    header: ({ column }: { column: any }) => (
+      <DataTableColumnHeader column={column} title="Class" />
+    ),
+  },
+  {
     accessorKey: "Actions",
     id: "actions",
     cell: ({ row }: { row: any }) => {

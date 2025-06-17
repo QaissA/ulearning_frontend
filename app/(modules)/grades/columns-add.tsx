@@ -61,19 +61,7 @@ export const columnsAdd: ColumnDef<Grades>[] = [
   {
     accessorKey: "matiere.name",
     header: ({ column }) => (
-      <div>
-        <ComboboxDemo
-          onSelect={(value) => {
-            column.setFilterValue(value === "all" ? "" : value);
-          }}
-          options={[
-            { value: "all", label: "All" },
-            { value: "Math", label: "Math" },
-            { value: "Science", label: "Science" },
-            { value: "History", label: "History" },
-          ]}
-        />
-      </div>
+      <DataTableColumnHeader column={column} title="Subject" />
     ),
   },
   {

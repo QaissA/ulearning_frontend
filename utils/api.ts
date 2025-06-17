@@ -1,5 +1,6 @@
 import { Students } from "@/app/(modules)/students/columns";
 import axios from "axios";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface RegisterUser {
   name: string;
@@ -78,7 +79,27 @@ export async function fetchStudents(
   params: FetchStudentsParams = {}
 ): Promise<any> {
   const { page = 1, limit = 10 } = params;
-  const res = await apiClient.get(`/users`, {
+  // Get user id from auth store (cookie or localStorage fallback)
+  let userId;
+  try {
+    // Try zustand cookie storage
+    const auth = useAuthStore.getState();
+    userId = auth.user?.id;
+  } catch {
+    // Fallback: try localStorage
+    const authRaw =
+      typeof window !== "undefined"
+        ? localStorage.getItem("auth-storage")
+        : null;
+    if (authRaw) {
+      try {
+        const auth = JSON.parse(authRaw);
+        userId = auth.state?.user?.id;
+      } catch {}
+    }
+  }
+  if (!userId) throw new Error("User ID not found");
+  const res = await apiClient.get(`/users/${userId}/my-students`, {
     params: { page, limit },
   });
   return res.data;
@@ -91,7 +112,24 @@ export interface FetchNotesParams {
 
 export const fetchNotes = async (params: FetchNotesParams = {}) => {
   const { page = 1, limit = 10 } = params;
-  const res = await apiClient.get(`/notes`, {
+  // Get user id from auth store (cookie or localStorage fallback)
+  let userId;
+  try {
+    // Try zustand cookie storage
+    const auth = useAuthStore.getState();
+    userId = auth.user?.id;
+  } catch {
+    // Fallback: try localStorage
+    const authRaw = typeof window !== 'undefined' ? localStorage.getItem('auth-storage') : null;
+    if (authRaw) {
+      try {
+        const auth = JSON.parse(authRaw);
+        userId = auth.state?.user?.id;
+      } catch {}
+    }
+  }
+  if (!userId) throw new Error('User ID not found');
+  const res = await apiClient.get(`/notes/teacher/${userId}/students`, {
     params: { page, limit },
   });
   return res.data;
@@ -165,4 +203,9 @@ export const changePassword = async (
     newPassword,
   });
   return response.data;
+};
+
+export const fetchSchoolsByTeacher = async (teacherId: number) => {
+  const res = await apiClient.get(`/school/by-teacher/${teacherId}`);
+  return res.data;
 };

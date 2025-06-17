@@ -117,7 +117,7 @@ const AttendancePage = () => {
             </div>
 
             {/* Date Selection */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="p-2 bg-emerald-100 rounded-lg">
@@ -143,7 +143,7 @@ const AttendancePage = () => {
                   </Button>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -306,6 +306,7 @@ const AttendancePage = () => {
                 setPageIndex,
                 setPageSize,
               }}
+              showAttendanceFilters={true}
             />
           </div>
         </div>

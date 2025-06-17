@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from "sonner";
 import { DataTable } from '@/components/data-table';
 import { columns } from './columns';
-import { fetchNotes } from '@/utils/api';
+import { fetchNotes, fetchSchoolsByTeacher } from '@/utils/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, FileText, BookOpen, TrendingUp, Search, Filter, BarChart3, Calendar, Star } from 'lucide-react';
@@ -17,6 +17,7 @@ const NotesPage = () => {
     const [pageSize, setPageSize] = useState(10);
     const [totalCount, setTotalCount] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
+    const [schoolOptions, setSchoolOptions] = useState([{ label: "Toutes", value: "" }]);
 
     const mutation = useMutation({
         mutationFn: ({ page, limit }: { page: number; limit: number }) => fetchNotes({ page, limit }),
@@ -38,6 +39,28 @@ const NotesPage = () => {
         mutation.mutate({ page: pageIndex + 1, limit: pageSize });
     }, [pageIndex, pageSize]);
 
+    // Fetch schools for the teacher
+    useEffect(() => {
+        async function loadSchools() {
+            try {
+                // Get teacher id from auth store (cookie storage)
+                const { user } = require('@/store/useAuthStore').useAuthStore.getState();
+                if (!user?.id) return;
+                const schools = await fetchSchoolsByTeacher(user.id);
+                if (Array.isArray(schools)) {
+                    setSchoolOptions([
+                        { label: "Toutes", value: "" },
+                        ...schools.map((s: any) => ({ label: s.school.name, value: s.school.name }))
+                    ]);
+                }
+            } catch (e) {
+                // fallback: just show 'Toutes'
+                setSchoolOptions([{ label: "Toutes", value: "" }]);
+            }
+        }
+        loadSchools();
+    }, []);
+
     const data = notesData || [];
     const pageCount = Math.ceil(totalCount / pageSize);
 
@@ -47,6 +70,16 @@ const NotesPage = () => {
         '0.0';
 
     const highGradesCount = data.filter((note: any) => parseFloat(note.grade) >= 15).length;
+
+    // Extract unique matiere names for the filter
+    const matiereOptions = React.useMemo(() => {
+        const names = data.map((note: any) => note.matiere?.name).filter(Boolean);
+        const uniqueNames = Array.from(new Set(names));
+        return [
+            { label: "All", value: "" },
+            ...uniqueNames.map((name) => ({ label: name, value: name }))
+        ];
+    }, [data]);
 
     if (isLoading) {
         return (
@@ -248,6 +281,9 @@ const NotesPage = () => {
                                 setPageIndex,
                                 setPageSize,
                             }}
+                            showGradesFilters={true}
+                            matiereOptions={matiereOptions}
+                            schoolOptions={schoolOptions}
                         />
                     </div>
                 </div>

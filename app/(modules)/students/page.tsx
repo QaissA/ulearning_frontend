@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { DataTable } from '@/components/data-table';
 import { columns as columnsFunction, Students } from './columns';
-import { fetchStudents, fetchClasses, Class } from '@/utils/api';
+import { fetchStudents } from '@/utils/api';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 // import axios from 'axios'; // Note: axios needs to be available in your project
@@ -14,7 +14,6 @@ import axios from 'axios';
 
 const StudentsPage = () => {
     const [error, setError] = useState('');
-    const [classes, setClasses] = useState<Class[]>([]);
     const [showAlert, setShowAlert] = useState(false);
     const [alertDetails, setAlertDetails] = useState({ name: '', className: '' });
     const [selectedClass, setSelectedClass] = useState('');
@@ -36,7 +35,13 @@ const StudentsPage = () => {
     useEffect(() => {
         if (data) {
             console.log('Fetched students data:', data);
-            setStudentsData(data.users);
+            // Flatten class info for the table
+            setStudentsData(
+                data.students.map((student: any) => ({
+                    ...student,
+                    className: student.class?.name || "",
+                }))
+            );
             setTotalCount(data.totalCount);
         }
     }, [data]);
@@ -48,21 +53,6 @@ const StudentsPage = () => {
             setError(queryError.message || 'Error fetching students');
         }
     }, [queryError]);
-
-    // Fetch classes on component mount
-    useEffect(() => {
-        const loadClasses = async () => {
-            try {
-                console.log('Fetching classes...');
-                const classData = await fetchClasses();
-                console.log('Fetched classes data:', classData);
-                setClasses(classData);
-            } catch (error) {
-                console.error('Error fetching classes:', error);
-            }
-        };
-        loadClasses();
-    }, []);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -84,6 +74,16 @@ const StudentsPage = () => {
             alert('Failed to add student. Please try again.');
         }
     };
+
+    // Get unique class names from studentsData
+    const classOptions = React.useMemo(() => {
+        const names = studentsData.map((student: any) => student.class?.name).filter(Boolean);
+        const uniqueNames = Array.from(new Set(names));
+        return [
+            { label: "Toutes", value: "" },
+            ...uniqueNames.map((name) => ({ label: name, value: name }))
+        ];
+    }, [studentsData]);
 
     const response = studentsData || [];
     const columns = columnsFunction(studentsData, setStudentsData);
@@ -181,18 +181,6 @@ const StudentsPage = () => {
                                     <div>
                                         <p className="text-sm font-medium text-slate-600">Total Students</p>
                                         <p className="text-2xl font-bold text-slate-800">{totalCount}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-6 border border-green-100/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 group">
-                                <div className="flex items-center space-x-4">
-                                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                        <BookOpen className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-slate-600">Active Classes</p>
-                                        <p className="text-2xl font-bold text-slate-800">{classes.length}</p>
                                     </div>
                                 </div>
                             </div>
@@ -351,25 +339,6 @@ const StudentsPage = () => {
                                                 />
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <label htmlFor="class" className="flex items-center space-x-2 text-sm font-medium text-slate-700">
-                                                    <BookOpen className="w-4 h-4" />
-                                                    <span>Class</span>
-                                                </label>
-                                                <Select onValueChange={(value) => setSelectedClass(value)}>
-                                                    <SelectTrigger id="class" className="h-12 border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
-                                                        <SelectValue placeholder="Select a class" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {classes.map((classItem) => (
-                                                            <SelectItem key={classItem.id} value={classItem.name}>
-                                                                {classItem.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
                                             <button
                                                 type="submit"
                                                 className="w-full flex items-center justify-center space-x-2 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-medium"
@@ -395,6 +364,8 @@ const StudentsPage = () => {
                                     setPageIndex,
                                     setPageSize,
                                 }}
+                                showStudentFilters={true}
+                                classOptions={classOptions}
                             />
                         </div>
                     </div>
